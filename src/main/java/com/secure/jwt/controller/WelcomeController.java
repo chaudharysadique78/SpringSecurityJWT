@@ -1,6 +1,7 @@
 package com.secure.jwt.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.secure.jwt.entity.AuthRequest;
+import com.secure.jwt.entity.JwtResponse;
 import com.secure.jwt.service.CustomUserDetailsService;
 import com.secure.jwt.util.JwtUtil;
 
@@ -29,7 +31,7 @@ public class WelcomeController {
 	}
 
 	@PostMapping("/authenticate")
-	public String generateToken(@RequestBody AuthRequest authRequest) throws Exception {
+	public ResponseEntity<?> generateToken(@RequestBody AuthRequest authRequest) throws Exception {
 		try {
 			authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(authRequest.getUserName(), authRequest.getPassword()));
@@ -38,9 +40,9 @@ public class WelcomeController {
 		}
 		//addition
 		final UserDetails userDetails=userDetailsService.loadUserByUsername(authRequest.getUserName());
-		final String token=jwtUtil.generateToken(userDetails);
-		return token;
-	//	return jwtUtil.generateToken(authRequest.getUserName());
+		String token = jwtUtil.generateToken(userDetails);
+		// converting token to json
+		return ResponseEntity.ok(new JwtResponse(token));
 	}
 
 }
